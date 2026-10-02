@@ -3,5 +3,7 @@ import react from "@vitejs/plugin-react";
 import { cloudflare } from "@cloudflare/vite-plugin";
 
 export default defineConfig({
+	resolve: {
+    conditions: ['style']},
 	plugins: [react(), cloudflare()],
 });
