@@ -1,111 +1,94 @@
-:root {
-	--text: #6b6375;
-	--text-h: #08060d;
-	--bg: #fff;
-	--border: #e5e4e7;
-	--code-bg: #f4f3ec;
-	--accent: #aa3bff;
-	--accent-bg: rgba(170, 59, 255, 0.1);
-	--accent-border: rgba(170, 59, 255, 0.5);
-	--social-bg: rgba(244, 243, 236, 0.5);
-	--shadow:
-		rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+import { useState } from "react";
+import LoginPage from "./pages/LoginPage";
+import LedgerPage from "./pages/LedgerPage";
+import JournalPage from "./pages/JournalPage";
 
-	--sans: system-ui, "Segoe UI", Roboto, sans-serif;
-	--heading: system-ui, "Segoe UI", Roboto, sans-serif;
-	--mono: ui-monospace, Consolas, monospace;
+type Page = "login" | "ledger" | "journal";
 
-	font: 18px/145% var(--sans);
-	letter-spacing: 0.18px;
-	color-scheme: light dark;
-	color: var(--text);
-	background: var(--bg);
-	font-synthesis: none;
-	text-rendering: optimizeLegibility;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
+export default function App() {
+  const [page, setPage] = useState<Page>("login");
+  const [loggedIn, setLoggedIn] = useState(false);
 
-	@media (max-width: 1024px) {
-		font-size: 16px;
-	}
-}
+  const handleLogin = () => {
+    setLoggedIn(true);
+    setPage("ledger");
+  };
 
-@media (prefers-color-scheme: dark) {
-	:root {
-		--text: #9ca3af;
-		--text-h: #f3f4f6;
-		--bg: #16171d;
-		--border: #2e303a;
-		--code-bg: #1f2028;
-		--accent: #c084fc;
-		--accent-bg: rgba(192, 132, 252, 0.15);
-		--accent-border: rgba(192, 132, 252, 0.5);
-		--social-bg: rgba(47, 48, 58, 0.5);
-		--shadow:
-			rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-	}
+  const handleLogout = () => {
+    setLoggedIn(false);
+    setPage("login");
+  };
 
-	#social .button-icon {
-		filter: invert(1) brightness(2);
-	}
-}
+  if (!loggedIn) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
 
-#root {
-	width: 1126px;
-	max-width: 100%;
-	margin: 0 auto;
-	text-align: center;
-	border-inline: 1px solid var(--border);
-	min-height: 100svh;
-	display: flex;
-	flex-direction: column;
-	box-sizing: border-box;
-}
+  return (
+    <div className="flex h-full" style={{ fontFamily: "'Inter', sans-serif" }}>
+      {/* Sidebar */}
+      <aside className="w-56 bg-[#0a0a0a] flex flex-col shrink-0">
+        <div className="px-6 pt-8 pb-6 border-b border-[#2a2a2a]">
+          <div
+            className="text-white text-xs tracking-[0.2em] uppercase mb-1"
+            style={{ fontFamily: "'JetBrains Mono', monospace" }}
+          >
+            Accountants
+          </div>
+          <div
+            className="text-white text-xs tracking-[0.2em] uppercase"
+            style={{ fontFamily: "'JetBrains Mono', monospace" }}
+          >
+            Anonymous
+          </div>
+        </div>
+        <nav className="flex flex-col gap-1 p-3 flex-1">
+          <button
+            onClick={() => setPage("ledger")}
+            className={`text-left px-3 py-2.5 text-sm transition-colors cursor-pointer ${
+              page === "ledger"
+                ? "bg-white text-black"
+                : "text-[#a0a0a0] hover:text-white hover:bg-[#1a1a1a]"
+            }`}
+            style={{ fontFamily: "'JetBrains Mono', monospace" }}
+          >
+            Ledger
+          </button>
+          <button
+            onClick={() => setPage("journal")}
+            className={`text-left px-3 py-2.5 text-sm transition-colors cursor-pointer ${
+              page === "journal"
+                ? "bg-white text-black"
+                : "text-[#a0a0a0] hover:text-white hover:bg-[#1a1a1a]"
+            }`}
+            style={{ fontFamily: "'JetBrains Mono', monospace" }}
+          >
+            Journal
+          </button>
+        </nav>
+        <div className="p-3 border-t border-[#2a2a2a]">
+          <div className="px-3 py-2 mb-1">
+            <div className="text-[#6b6b6b] text-xs" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+              Logged in as
+            </div>
+            <div className="text-white text-xs mt-0.5" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+              m.chen@firm.com
+            </div>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="w-full text-left px-3 py-2.5 text-sm text-[#a0a0a0] hover:text-white hover:bg-[#1a1a1a] transition-colors cursor-pointer"
+            style={{ fontFamily: "'JetBrains Mono', monospace" }}
+          >
+            Sign out
+          </button>
+        </div>
+      </aside>
 
-body {
-	margin: 0;
-}
-
-h1,
-h2 {
-	font-family: var(--heading);
-	font-weight: 500;
-	color: var(--text-h);
-}
-
-h1 {
-	font-size: 56px;
-	letter-spacing: -1.68px;
-	margin: 32px 0;
-	@media (max-width: 1024px) {
-		font-size: 36px;
-		margin: 20px 0;
-	}
-}
-h2 {
-	font-size: 24px;
-	line-height: 118%;
-	letter-spacing: -0.24px;
-	margin: 0 0 8px;
-	@media (max-width: 1024px) {
-		font-size: 20px;
-	}
-}
-p {
-	margin: 0;
-}
-
-code,
-.counter {
-	font-family: var(--mono);
-	display: inline-flex;
-	border-radius: 4px;
-	color: var(--text-h);
-}
-
-code {
-	font-size: 15px;
-	line-height: 135%;
-	padding: 4px 8px;
-	background: var(--code-bg);
+      {/* Main */}
+      <main className="flex-1 overflow-auto bg-white">
+        {page === "ledger" && <LedgerPage />}
+        {page === "journal" && <JournalPage />}
+      </main>
+    </div>
+  );
 }

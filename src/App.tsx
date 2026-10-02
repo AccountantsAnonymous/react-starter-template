@@ -1,154 +1,94 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "./assets/vite.svg";
-import cloudflareLogo from "./assets/cloudflare.svg";
-import heroImg from "./assets/hero.png";
-import "./App.css";
+import LoginPage from "./pages/LoginPage";
+import LedgerPage from "./pages/LedgerPage";
+import JournalPage from "./pages/JournalPage";
 
-function App() {
-	const [count, setCount] = useState(0);
-	const [name, setName] = useState("unknown");
+type Page = "login" | "ledger" | "journal";
 
-	return (
-		<>
-			<section id="center">
-				<div className="hero">
-					<img src={heroImg} className="base" width="170" height="179" alt="" />
-					<img src={reactLogo} className="framework" alt="React logo" />
-					<img src={viteLogo} className="vite" alt="Vite logo" />
-				</div>
-				<div>
-					<h1>Get started with Cloudflare</h1>
-					<p>
-						Edit <code>src/App.tsx</code> or <code>worker/index.ts</code> and
-						save to test <code>HMR</code>
-					</p>
-				</div>
-				<ul
-					style={{
-						display: "flex",
-						gap: "1rem",
-						listStyle: "none",
-						padding: 0,
-					}}
-				>
-					<li>
-						<button
-							className="counter"
-							onClick={() => setCount((count) => count + 1)}
-						>
-							Count is {count}
-						</button>
-					</li>
-					<li>
-						<button
-							className="counter"
-							onClick={() => {
-								fetch("/api/")
-									.then((res) => res.json())
-									.then((data) => setName(data.name));
-							}}
-							aria-label="get name"
-						>
-							Name from API is: {name}
-						</button>
-					</li>
-				</ul>
-			</section>
+export default function App() {
+  const [page, setPage] = useState<Page>("login");
+  const [loggedIn, setLoggedIn] = useState(false);
 
-			<div className="ticks"></div>
+  const handleLogin = () => {
+    setLoggedIn(true);
+    setPage("ledger");
+  };
 
-			<section id="next-steps">
-				<div id="docs">
-					<svg className="icon" role="presentation" aria-hidden="true">
-						<use href="/icons.svg#documentation-icon"></use>
-					</svg>
-					<h2>Documentation</h2>
-					<p>Your questions, answered</p>
-					<ul>
-						<li>
-							<a href="https://vite.dev/" target="_blank">
-								<img className="logo" src={viteLogo} alt="" />
-								Explore Vite
-							</a>
-						</li>
-						<li>
-							<a href="https://react.dev/" target="_blank">
-								<img className="button-icon" src={reactLogo} alt="" />
-								Learn more
-							</a>
-						</li>
-						<li>
-							<a href="https://workers.cloudflare.com/" target="_blank">
-								<img className="button-icon" src={cloudflareLogo} alt="" />
-								Workers Docs
-							</a>
-						</li>
-					</ul>
-				</div>
-				<div id="social">
-					<svg className="icon" role="presentation" aria-hidden="true">
-						<use href="/icons.svg#social-icon"></use>
-					</svg>
-					<h2>Connect with us</h2>
-					<p>Join the Vite community</p>
-					<ul>
-						<li>
-							<a href="https://github.com/vitejs/vite" target="_blank">
-								<svg
-									className="button-icon"
-									role="presentation"
-									aria-hidden="true"
-								>
-									<use href="/icons.svg#github-icon"></use>
-								</svg>
-								GitHub
-							</a>
-						</li>
-						<li>
-							<a href="https://chat.vite.dev/" target="_blank">
-								<svg
-									className="button-icon"
-									role="presentation"
-									aria-hidden="true"
-								>
-									<use href="/icons.svg#discord-icon"></use>
-								</svg>
-								Discord
-							</a>
-						</li>
-						<li>
-							<a href="https://x.com/vite_js" target="_blank">
-								<svg
-									className="button-icon"
-									role="presentation"
-									aria-hidden="true"
-								>
-									<use href="/icons.svg#x-icon"></use>
-								</svg>
-								X.com
-							</a>
-						</li>
-						<li>
-							<a href="https://bsky.app/profile/vite.dev" target="_blank">
-								<svg
-									className="button-icon"
-									role="presentation"
-									aria-hidden="true"
-								>
-									<use href="/icons.svg#bluesky-icon"></use>
-								</svg>
-								Bluesky
-							</a>
-						</li>
-					</ul>
-				</div>
-			</section>
+  const handleLogout = () => {
+    setLoggedIn(false);
+    setPage("login");
+  };
 
-			<div className="ticks"></div>
-			<section id="spacer"></section>
-		</>
-	);
+  if (!loggedIn) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
+
+  return (
+    <div className="flex h-full" style={{ fontFamily: "'Inter', sans-serif" }}>
+      {/* Sidebar */}
+      <aside className="w-56 bg-[#0a0a0a] flex flex-col shrink-0">
+        <div className="px-6 pt-8 pb-6 border-b border-[#2a2a2a]">
+          <div
+            className="text-white text-xs tracking-[0.2em] uppercase mb-1"
+            style={{ fontFamily: "'JetBrains Mono', monospace" }}
+          >
+            Accountants
+          </div>
+          <div
+            className="text-white text-xs tracking-[0.2em] uppercase"
+            style={{ fontFamily: "'JetBrains Mono', monospace" }}
+          >
+            Anonymous
+          </div>
+        </div>
+        <nav className="flex flex-col gap-1 p-3 flex-1">
+          <button
+            onClick={() => setPage("ledger")}
+            className={`text-left px-3 py-2.5 text-sm transition-colors cursor-pointer ${
+              page === "ledger"
+                ? "bg-white text-black"
+                : "text-[#a0a0a0] hover:text-white hover:bg-[#1a1a1a]"
+            }`}
+            style={{ fontFamily: "'JetBrains Mono', monospace" }}
+          >
+            Ledger
+          </button>
+          <button
+            onClick={() => setPage("journal")}
+            className={`text-left px-3 py-2.5 text-sm transition-colors cursor-pointer ${
+              page === "journal"
+                ? "bg-white text-black"
+                : "text-[#a0a0a0] hover:text-white hover:bg-[#1a1a1a]"
+            }`}
+            style={{ fontFamily: "'JetBrains Mono', monospace" }}
+          >
+            Journal
+          </button>
+        </nav>
+        <div className="p-3 border-t border-[#2a2a2a]">
+          <div className="px-3 py-2 mb-1">
+            <div className="text-[#6b6b6b] text-xs" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+              Logged in as
+            </div>
+            <div className="text-white text-xs mt-0.5" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+              m.chen@firm.com
+            </div>
+          </div>
+          <button
+            onClick={handleLogout}
+            className="w-full text-left px-3 py-2.5 text-sm text-[#a0a0a0] hover:text-white hover:bg-[#1a1a1a] transition-colors cursor-pointer"
+            style={{ fontFamily: "'JetBrains Mono', monospace" }}
+          >
+            Sign out
+          </button>
+        </div>
+      </aside>
+
+      {/* Main */}
+      <main className="flex-1 overflow-auto bg-white">
+        {page === "ledger" && <LedgerPage />}
+        {page === "journal" && <JournalPage />}
+      </main>
+    </div>
+  );
 }
-
-export default App;
