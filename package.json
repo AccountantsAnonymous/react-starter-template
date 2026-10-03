@@ -14,6 +14,8 @@
 		"publish": true
 	},
 	"dependencies": {
+		"chanfana": "^3.4.0",
+		"hono": "^4.13.12",
 		"react": "19.2.1",
 		"react-dom": "19.2.1"
 	},
