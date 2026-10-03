@@ -33,6 +33,13 @@ openapi.get("/api/health", (c) => {
 /**
  * POST /api/auth/login
  */
+
+type UserRecord = {
+	id: string;
+	email: string;
+	password_hash: string;
+};
+
 openapi.post("/api/auth/login", async (c) => {
 	let body: {
 		email?: string;
@@ -70,12 +77,7 @@ openapi.post("/api/auth/login", async (c) => {
 		 WHERE email = ?`,
 	)
 		.bind(email)
-		.first<{
-			id: string;
-			email: string;
-			password_hash: string;
-		}>();
-
+		.first()) as UserRecord | null;
 	if (!user) {
 		return c.json(
 			{
