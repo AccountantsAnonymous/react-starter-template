@@ -1,10 +1,19 @@
-// workers/index.ts
-
 import { Hono } from "hono";
 import { fromHono } from "chanfana";
 
 type Bindings = Env & {
 	DB: D1Database;
+};
+
+type LoginBody = {
+	email?: string;
+	password?: string;
+};
+
+type UserRecord = {
+	id: string;
+	email: string;
+	password_hash: string;
 };
 
 const app = new Hono<{ Bindings: Bindings }>();
@@ -20,9 +29,6 @@ const openapi = fromHono(app, {
 	},
 });
 
-/**
- * GET /api/health
- */
 openapi.get("/api/health", (c) => {
 	return c.json({
 		ok: true,
@@ -30,24 +36,11 @@ openapi.get("/api/health", (c) => {
 	});
 });
 
-/**
- * POST /api/auth/login
- */
-
-type UserRecord = {
-	id: string;
-	email: string;
-	password_hash: string;
-};
-
 openapi.post("/api/auth/login", async (c) => {
-	let body: {
-		email?: string;
-		password?: string;
-	};
+	let body: LoginBody;
 
 	try {
-		body = await c.req.json();
+		body = (await c.req.json()) as LoginBody;
 	} catch {
 		return c.json(
 			{
@@ -71,13 +64,14 @@ openapi.post("/api/auth/login", async (c) => {
 		);
 	}
 
-	const user = await c.env.DB.prepare(
+	const query = c.env.DB.prepare(
 		`SELECT id, email, password_hash
 		 FROM users
 		 WHERE email = ?`,
-	)
-		.bind(email)
-		.first()) as UserRecord | null;
+	).bind(email);
+
+	const user = (await query.first()) as UserRecord | null;
+
 	if (!user) {
 		return c.json(
 			{
@@ -88,7 +82,8 @@ openapi.post("/api/auth/login", async (c) => {
 		);
 	}
 
-	// Replace this with real password-hash verification.
+	// Temporary comparison only.
+	// Replace with bcrypt, Argon2id, scrypt, or an auth provider.
 	const passwordMatches = password === user.password_hash;
 
 	if (!passwordMatches) {
@@ -110,6 +105,15 @@ openapi.post("/api/auth/login", async (c) => {
 		.bind(sessionId, user.id)
 		.run();
 
+	const cookie = [
+		`session=${sessionId}`,
+		"HttpOnly",
+		"Secure",
+		"SameSite=Lax",
+		"Path=/",
+		"Max-Age=604800",
+	].join("; ");
+
 	return c.json(
 		{
 			success: true,
@@ -120,14 +124,7 @@ openapi.post("/api/auth/login", async (c) => {
 		},
 		200,
 		{
-			"Set-Cookie": [
-				`session=${sessionId}`,
-				"HttpOnly",
-				"Secure",
-				"SameSite=Lax",
-				"Path=/",
-				"Max-Age=604800",
-			].join("; "),
+			"Set-Cookie": cookie,
 		},
 	);
 });
