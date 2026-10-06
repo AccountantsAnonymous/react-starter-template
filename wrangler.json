@@ -8,6 +8,13 @@
 		"enabled": true
 	},
 	"upload_source_maps": true,
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "accountants-db",
+			"database_id": "REPLACE_WITH_D1_DATABASE_ID"
+		}
+	],
 	"assets": {
 		"not_found_handling": "single-page-application"
 	}

@@ -7,6 +7,25 @@ type LoginResponse = {
 	error?: string;
 };
 
+async function parseJsonResponse<T>(response: Response): Promise<T> {
+	const text = await response.text();
+
+	if (!text) {
+		return {} as T;
+	}
+
+	const trimmed = text.trim();
+	if (
+		response.headers.get("content-type")?.includes("application/json") ||
+		trimmed.startsWith("{") ||
+		trimmed.startsWith("[")
+	) {
+		return JSON.parse(trimmed) as T;
+	}
+
+	throw new Error(trimmed || "Unable to sign in.");
+}
+
 export async function login(
 	email: string,
 	password: string,
@@ -23,7 +42,16 @@ export async function login(
 		}),
 	});
 
-	const data = (await response.json()) as LoginResponse;
+	let data: LoginResponse;
+
+	try {
+		data = await parseJsonResponse<LoginResponse>(response);
+	} catch (error) {
+		if (error instanceof Error) {
+			throw error;
+		}
+		throw new Error("Unable to sign in.");
+	}
 
 	if (!response.ok) {
 		throw new Error(data.error ?? "Unable to sign in.");
