@@ -1,0 +1,143 @@
+-- Roles table
+CREATE TABLE roles (
+  role_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  role_name TEXT NOT NULL UNIQUE,
+  description TEXT,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Users table
+CREATE TABLE users (
+  user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  username TEXT NOT NULL UNIQUE,
+  email TEXT NOT NULL UNIQUE,
+  first_name TEXT NOT NULL,
+  last_name TEXT NOT NULL,
+  date_of_birth DATE NOT NULL,
+  address TEXT,
+  phone TEXT,
+  profile_picture_url TEXT,
+  status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'suspended')),
+  failed_login_attempts INTEGER DEFAULT 0,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- User Roles (many-to-many relationship)
+CREATE TABLE user_roles (
+  user_role_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  role_id INTEGER NOT NULL,
+  assigned_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  assigned_by INTEGER NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(user_id),
+  FOREIGN KEY (role_id) REFERENCES roles(role_id),
+  FOREIGN KEY (assigned_by) REFERENCES users(user_id),
+  UNIQUE(user_id, role_id)
+);
+
+-- Password history table
+CREATE TABLE passwords (
+  password_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  encrypted_password TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  expires_at DATETIME NOT NULL,
+  is_current BOOLEAN DEFAULT 1,
+  FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+-- Login attempts tracking
+CREATE TABLE login_attempts (
+  attempt_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER,
+  username TEXT,
+  attempted_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  success BOOLEAN NOT NULL,
+  ip_address TEXT,
+  user_agent TEXT
+);
+
+-- Access requests from new users
+CREATE TABLE access_requests (
+  request_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  first_name TEXT NOT NULL,
+  last_name TEXT NOT NULL,
+  email TEXT NOT NULL UNIQUE,
+  date_of_birth DATE NOT NULL,
+  address TEXT,
+  requested_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+  reviewed_by INTEGER,
+  reviewed_at DATETIME,
+  rejection_reason TEXT,
+  FOREIGN KEY (reviewed_by) REFERENCES users(user_id)
+);
+
+-- Security questions for password reset
+CREATE TABLE security_questions (
+  question_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  question_text TEXT NOT NULL,
+  answer_hash TEXT NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+-- User suspensions (temporary deactivation)
+CREATE TABLE user_suspensions (
+  suspension_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  suspension_start_date DATETIME NOT NULL,
+  suspension_end_date DATETIME NOT NULL,
+  reason TEXT,
+  created_by INTEGER NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(user_id),
+  FOREIGN KEY (created_by) REFERENCES users(user_id)
+);
+
+-- Password reset requests
+CREATE TABLE password_reset_requests (
+  reset_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER NOT NULL,
+  reset_token TEXT NOT NULL UNIQUE,
+  requested_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  expires_at DATETIME NOT NULL,
+  completed_at DATETIME,
+  ip_address TEXT,
+  FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+-- Email logs (for audit trail)
+CREATE TABLE email_logs (
+  email_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  user_id INTEGER,
+  recipient_email TEXT NOT NULL,
+  subject TEXT NOT NULL,
+  email_type TEXT NOT NULL,
+  sent_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  status TEXT DEFAULT 'sent' CHECK (status IN ('sent', 'failed')),
+  error_message TEXT,
+  FOREIGN KEY (user_id) REFERENCES users(user_id)
+);
+
+-- Audit log for admin actions
+CREATE TABLE audit_log (
+  log_id INTEGER PRIMARY KEY AUTOINCREMENT,
+  admin_user_id INTEGER NOT NULL,
+  action_type TEXT NOT NULL,
+  affected_user_id INTEGER,
+  action_details TEXT,
+  timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+  ip_address TEXT,
+  FOREIGN KEY (admin_user_id) REFERENCES users(user_id),
+  FOREIGN KEY (affected_user_id) REFERENCES users(user_id)
+);
+
+-- Insert default roles
+INSERT INTO roles (role_name, description) VALUES 
+('administrator', 'System administrator with full access'),
+('manager', 'Manager with limited administrative privileges'),
+('accountant', 'Regular user - accountant role');
+
