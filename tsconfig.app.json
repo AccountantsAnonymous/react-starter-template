@@ -24,3 +24,12 @@
 	},
 	"include": ["src"]
 }
+{
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "accountants-db",
+      "database_id": "2f6bda90-2957-43b6-a2a2-96e1a140cbe3"
+    }
+  ]
+}
