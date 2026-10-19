@@ -1,7 +1,8 @@
-"""Offline tests: does database/schema.sql support what the STS requires?
+"""
+Offline tests: does database/schema.sql support STS requirement?
 
-These run with no server and no network. They check the *data model* side of
-each feature - the UI/API side is covered in tests/api/.
+These run with no server and no network. Checks the data model side of
+each feature - the UI/API side is covered in testing-suite/test-login.py
 """
 import re
 import sqlite3
