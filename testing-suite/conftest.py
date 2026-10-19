@@ -27,8 +27,7 @@ from pathlib import Path
 
 import pytest
 
-# Where is the app repo? In order: AA_REPO_ROOT, the folder containing this
-# suite (when committed inside the repo), or a sibling react-starter-template clone.
+
 SUITE_ROOT = Path(__file__).resolve().parent.parent
 
 
