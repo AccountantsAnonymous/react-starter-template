@@ -1,7 +1,5 @@
-"""Unit tests for the Python worker's pure auth rules (F-06, F-10).
-
-These test plain functions, so they're the fastest and most precise tests in
-the suite. They expect a module (default name: auth_rules) providing:
+"""
+Unit tests for the Python worker's pure auth rules (F-06, F-10).
 
     validate_password(password: str) -> list[str]
         Returns a list of rule violations; empty list means valid.
@@ -10,11 +8,6 @@ the suite. They expect a module (default name: auth_rules) providing:
         First initial + full last name + MMYY, with a numeric suffix if taken.
 
     is_password_reused(new_password: str, history_hashes: list[str]) -> bool
-
-If your pywrangler-worker uses different names, change the calls below - the
-test *tables* (the parametrize lists) are the valuable part.
-
-    AA_PY_WORKER_SRC=~/code/pywrangler-worker/src pytest -m rules
 """
 from datetime import date
 
@@ -24,7 +17,6 @@ pytestmark = pytest.mark.rules
 
 
 # --- F-06 Password rules --------------------------------------------------
-# One row per STS case. Add a row whenever you find a new edge case or bug.
 
 @pytest.mark.parametrize(
     "password",
@@ -59,7 +51,6 @@ def test_noncompliant_password_is_rejected(rules, password, why):
 def test_previously_used_password_is_detected(rules):
     import hashlib
 
-    # Adjust to however the worker hashes history entries.
     old = hashlib.sha256(b"Ledger#2025").hexdigest()
     assert rules.is_password_reused("Ledger#2025", [old]) is True
     assert rules.is_password_reused("Ledger#2026", [old]) is False
@@ -77,8 +68,7 @@ def test_previously_used_password_is_detected(rules):
 )
 @pytest.mark.sts("TC-043")
 def test_username_format(rules, first, last, created, expected):
-    # Note: casing/space handling for multi-word last names is an STS section 9
-    # "item to confirm" - fix the expected value once the team decides.
+
     assert rules.generate_username(first, last, created, existing=set()) == expected
 
 
