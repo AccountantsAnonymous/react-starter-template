@@ -1,4 +1,5 @@
-"""Black-box tests for POST /api/auth/login (worker/index.ts).
+"""
+Black-box tests for POST /api/auth/login (worker/index.ts).
 
 Run with the app running locally:
     AA_BASE_URL=http://localhost:5173 pytest -m api
@@ -6,7 +7,7 @@ Run with the app running locally:
 Each test follows Arrange / Act / Assert:
   Arrange - seed exactly the user the STS precondition describes (live_user)
   Act     - make the HTTP request
-  Assert  - check the visible response AND the database state (STS 2.2)
+  Assert  - check the visible response and the database state (STS 2.2)
 """
 from datetime import timedelta
 
@@ -68,7 +69,7 @@ def test_invalid_credentials_are_rejected(api, live_user, email_override, passwo
     response = login(api, email_override or user["email"], password_override or user["password"])
 
     assert response.status_code == 401
-    # Same message for both cases, so attackers can't probe which emails exist.
+    # Same message for both cases
     assert response.json()["error"] == "Invalid email or password."
 
 
@@ -151,7 +152,7 @@ def test_expired_password_requires_change(api, live_user):
     assert response.json().get("passwordExpired") is True
 
 
-# --- Not yet implemented in the Worker ------------------------------------
+# --- Not yet implemented ] -----------=------------------------------------
 
 @pytest.mark.sts("TC-007")
 @pytest.mark.parametrize("path", ["/api/admin/users", "/api/admin/reports/users"])
